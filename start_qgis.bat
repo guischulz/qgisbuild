@@ -14,6 +14,6 @@ set QGIS_PREFIX_PATH=%QGIS_DIR:\=/%
 set GDAL_FILENAME_IS_UTF8=YES
 set VSI_CACHE=TRUE
 set VSI_CACHE_SIZE=1000000
-set QT_PLUGIN_PATH=%OSGEO4W_ROOT%\apps\qt4\plugins
+set QT_PLUGIN_PATH=%OSGEO4W_ROOT%\apps\qt4\plugins;%QGIS_DIR%\qtplugins
 
 start qgis.exe %*

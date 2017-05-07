@@ -18,7 +18,7 @@ set PATH=%PATH%;%CMAKE%\bin;%CYGWIN_ROOT%\bin
 
 rem Additional environment variables
 set BUILD_DIR=target
-set BUILDCONF=Release
+set BUILDCONF=RelWithDebInfo
 set INCLUDE=%INCLUDE%;%OSGEO4W_ROOT%\include;%PYTHON_ROOT%\include
 set LIB=%LIB%;%OSGEO4W_ROOT%\lib
 set O4W_ROOT=%OSGEO4W_ROOT:\=/%
@@ -117,6 +117,23 @@ REM ==========================================================================
 title QGIS Install
 if "%1"=="skip_install" goto skip_install
 cmake --build %BUILD_DIR% --target install --config %BUILDCONF%
+
+rem Move qgis files created in OSGEO4W_ROOT to INSTALL_DIR
+if exist "%OSGEO4W_ROOT%\apps\qt4\plugins\sqldrivers\qsqlspatialite.dll" (
+  if not exist "%INSTALL_DIR%\qtplugins\sqldrivers" mkdir "%INSTALL_DIR%\qtplugins\sqldrivers"
+  copy /y "%OSGEO4W_ROOT%\apps\qt4\plugins\sqldrivers\qsqlspatialite.dll" "%INSTALL_DIR%\qtplugins\sqldrivers"
+  del "%OSGEO4W_ROOT%\apps\qt4\plugins\sqldrivers\qsqlspatialite.dll"
+)
+if exist "%OSGEO4W_ROOT%\apps\qt4\plugins\designer\qgis_customwidgets.dll" (
+  if not exist "%INSTALL_DIR%\qtplugins\designer" mkdir "%INSTALL_DIR%\qtplugins\designer"
+  copy /y "%OSGEO4W_ROOT%\apps\qt4\plugins\designer\qgis_customwidgets.dll" "%INSTALL_DIR%\qtplugins\designer"
+  del "%OSGEO4W_ROOT%\apps\qt4\plugins\designer\qgis_customwidgets.dll"
+)
+if exist "%OSGEO4W_ROOT%\apps\Python27\Lib\site-packages\PyQt4\uic\widget-plugins\qgis_customwidgets.py" (
+  if not exist "%INSTALL_DIR%\python\PyQt4\uic\widget-plugins" mkdir "%INSTALL_DIR%\python\PyQt4\uic\widget-plugins"
+  copy /y "%OSGEO4W_ROOT%\apps\Python27\Lib\site-packages\PyQt4\uic\widget-plugins\qgis_customwidgets.py" "%INSTALL_DIR%\python\PyQt4\uic\widget-plugins"
+  del "%OSGEO4W_ROOT%\apps\Python27\Lib\site-packages\PyQt4\uic\widget-plugins\qgis_customwidgets.py"
+)
 if "%1"=="install" goto :eof
 :skip_install
 
