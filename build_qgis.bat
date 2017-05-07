@@ -19,15 +19,29 @@ set PATH=%PATH%;%CMAKE%\bin;%CYGWIN_ROOT%\bin
 rem Additional environment variables
 set BUILD_DIR=target
 set BUILDCONF=Release
-set INCLUDE=%INCLUDE%;%OSGEO4W_ROOT%\include
+set INCLUDE=%INCLUDE%;%OSGEO4W_ROOT%\include;%PYTHON_ROOT%\include
 set LIB=%LIB%;%OSGEO4W_ROOT%\lib
 set O4W_ROOT=%OSGEO4W_ROOT:\=/%
 set PACKAGENAME=qgis-dev
+set PYTHONPATH=
 set SRCDIR=D:\work\QGIS
 
+set INSTALL_DIR=%~dp0install
+set PDB_OUTPUT_DIR=%INSTALL_DIR:\=/%/pdb
+rem set INSTALL_DIR=%O4W_ROOT%/apps/%PACKAGENAME%
 if not exist "%BUILD_DIR%" md "%BUILD_DIR%"  
 
+if "%1"=="cmake" goto cmake
+if "%1"=="clean" goto clean
+if "%1"=="build" goto build
+if "%1"=="install" goto install
+
 REM ==========================================================================
+:cmake
+if "%1"=="skip_cmake" goto skip_cmake
+if "%1"=="cmake" del "%BUILD_DIR%\CMakeCache.txt"
+if exist "%BUILD_DIR%\CMakeCache.txt" goto skip_cmake
+
 color 1f
 title QGIS CMake
   
@@ -37,22 +51,20 @@ set CMAKE_OPT=^
 	-D SIP_BINARY_PATH=%O4W_ROOT%/bin/sip.exe ^
 	-D QWT_LIBRARY=%O4W_ROOT%/lib/qwt5.lib ^
 	-D CMAKE_CXX_FLAGS_RELWITHDEBINFO="/MD /Zi /MP /Od /D NDEBUG /D QGISDEBUG" ^
-	-D CMAKE_PDB_OUTPUT_DIRECTORY_RELWITHDEBINFO=%BUILDDIR%\apps\%PACKAGENAME%\pdb ^
+	-D CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY=%PDB_OUTPUT_DIR% ^
 	-D SETUPAPI_LIBRARY="%SETUPAPI_LIBRARY%" ^
 	-D CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS=TRUE
 
 pushd "%BUILD_DIR%"
-if exist "CMakeCache.txt" goto skip_cmake
 cmake %CMAKE_OPT% ^
 	-D PEDANTIC=TRUE ^
 	-D WITH_QSPATIALITE=TRUE ^
 	-D WITH_SERVER=TRUE ^
 	-D SERVER_SKIP_ECW=TRUE ^
 	-D WITH_GRASS=FALSE ^
-	-D WITH_GRASS6=FALSE ^
 	-D WITH_GRASS7=FALSE ^
 	-D WITH_GLOBE=FALSE ^
-	-D WITH_TOUCH=TRUE ^
+	-D WITH_TOUCH=FALSE ^
 	-D WITH_ORACLE=FALSE ^
 	-D WITH_POSTGRESQL=TRUE ^
 	-D WITH_CUSTOM_WIDGETS=TRUE ^
@@ -68,7 +80,7 @@ cmake %CMAKE_OPT% ^
 	-D QT_LIBRARY_DIR=%O4W_ROOT%/lib ^
 	-D QT_HEADERS_DIR=%O4W_ROOT%/include/qt4 ^
 	-D QWT_INCLUDE_DIR=%O4W_ROOT%/include/qwt ^
-	-D CMAKE_INSTALL_PREFIX=%O4W_ROOT%/apps/%PACKAGENAME% ^
+	-D CMAKE_INSTALL_PREFIX=%INSTALL_DIR% ^
 	-D FCGI_INCLUDE_DIR=%O4W_ROOT%/include ^
 	-D FCGI_LIBRARY=%O4W_ROOT%/lib/libfcgi.lib ^
 	-D WITH_INTERNAL_MARKUPSAFE=FALSE ^
@@ -76,18 +88,36 @@ cmake %CMAKE_OPT% ^
 	-D WITH_INTERNAL_PYTZ=FALSE ^
 	-D WITH_INTERNAL_SIX=FALSE ^
 	-D WITH_INTERNAL_NOSE2=FALSE ^
-	-D WITH_INTERNAL_MOCK=FALSE ^
 	-D WITH_INTERNAL_FUTURE=FALSE ^
 	-D WITH_INTERNAL_YAML=FALSE ^
 	-D WITH_INTERNAL_OWSLIB=FALSE ^
 	%SRCDIR%
-:skip_cmake
 popd
+if "%1"=="cmake" goto :eof
+:skip_cmake
 
 REM ==========================================================================
+:clean
 title QGIS Clean
+if "%1"=="skip_clean" goto skip_clean
 cmake --build %BUILD_DIR% --target clean --config %BUILDCONF%
+if "%1"=="clean" goto :eof
+:skip_clean
 
 REM ==========================================================================
+:build
 title QGIS Build
+if "%1"=="skip_build" goto skip_build
 cmake --build %BUILD_DIR% --config %BUILDCONF%
+if "%1"=="build" goto :eof
+:skip_build
+
+REM ==========================================================================
+:install
+title QGIS Install
+if "%1"=="skip_install" goto skip_install
+cmake --build %BUILD_DIR% --target install --config %BUILDCONF%
+if "%1"=="install" goto :eof
+:skip_install
+
+echo %date% %time%
