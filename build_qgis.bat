@@ -17,7 +17,7 @@ call "%OSGEO4W_ROOT%\bin\o4w_env.bat"
 set PATH=%PATH%;%CMAKE%\bin;%CYGWIN_ROOT%\bin
 
 rem Additional environment variables
-set BUILD_DIR=target
+set BUILD_DIR=build
 set BUILDCONF=RelWithDebInfo
 set INCLUDE=%INCLUDE%;%OSGEO4W_ROOT%\include;%PYTHON_ROOT%\include
 set LIB=%LIB%;%OSGEO4W_ROOT%\lib
