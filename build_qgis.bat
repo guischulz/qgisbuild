@@ -27,8 +27,8 @@ set PYTHONPATH=
 set SRCDIR=D:\work\QGIS
 
 set INSTALL_DIR=%~dp0install
-set PDB_OUTPUT_DIR=%INSTALL_DIR:\=/%/pdb
 rem set INSTALL_DIR=%O4W_ROOT%/apps/%PACKAGENAME%
+set PDB_OUTPUT_DIR=%INSTALL_DIR:\=/%/pdb
 if not exist "%BUILD_DIR%" md "%BUILD_DIR%"  
 
 if "%1"=="cmake" goto cmake
@@ -44,7 +44,7 @@ if exist "%BUILD_DIR%\CMakeCache.txt" goto skip_cmake
 
 color 1f
 title QGIS CMake
-  
+
 set CMAKE_OPT=^
 	-G "Visual Studio 10 Win64" ^
 	-D SPATIALINDEX_LIBRARY=%O4W_ROOT%/lib/spatialindex-64.lib ^
@@ -54,6 +54,12 @@ set CMAKE_OPT=^
 	-D CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY=%PDB_OUTPUT_DIR% ^
 	-D SETUPAPI_LIBRARY="%SETUPAPI_LIBRARY%" ^
 	-D CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS=TRUE
+
+pushd "%SRCDIR%"
+rem Disable browse files generation
+sed -i 's/ MESSAGE (STATUS "Generating browse files")/#MESSAGE (STATUS "Generating browse files")/g' CMakeLists.txt
+sed -i 's/ ADD_DEFINITIONS( \/FR )/#ADD_DEFINITIONS( \/FR )/g' CMakeLists.txt
+popd
 
 pushd "%BUILD_DIR%"
 cmake %CMAKE_OPT% ^
